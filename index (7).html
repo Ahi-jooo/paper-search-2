@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>論文検索</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Design System */
+        :root {
+            --color-bg: #F5F6F7;
+            --color-surface: #FFFFFF;
+            --color-primary: #2C3E50;
+            --color-primary-hover: #34495E;
+            --color-accent: #4A90E2;
+            --color-text: #333333;
+            --color-text-light: #666666;
+            --color-border: #E1E4E8;
+
+            --font-main: 'Inter', sans-serif;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 48px;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        /* Header */
+        .app-header {
+            background-color: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-lg) 0;
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .app-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        /* Search Panel */
+        .search-panel {
+            background-color: var(--color-surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-primary);
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-row>.form-group {
+            flex: 1;
+        }
+
+        .date-selects {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            display: block;
+            width: 100%;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            display: block;
+            width: 100%;
+            background-color: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            background-color: #f8f9fa;
+        }
+
+        /* Result Panel */
+        .results-meta {
+            margin-bottom: var(--spacing-md);
+            font-size: 1.1rem;
+            /* Increased size for emphasis */
+            color: var(--color-primary);
+            /* Use primary color */
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 8px;
+        }
+
+        .paper-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .paper-card {
+            background-color: var(--color-surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-accent);
+        }
+
+        .paper-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: var(--spacing-xs);
+            line-height: 1.4;
+        }
+
+        .paper-card h3 a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .paper-card h3 a:hover {
+            color: var(--color-accent);
+        }
+
+        .paper-meta {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .journal-tag {
+            font-weight: 600;
+            color: var(--color-primary);
+            background: #E8F0FE;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .citation-count {
+            font-weight: 500;
+            color: #d35400;
+            /* Distinct color for impact metric */
+            background: #fff4e6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .paper-abstract {
+            font-size: 0.95rem;
+            color: #555;
+            margin-top: 8px;
+
+            /* Line clamping for ~2 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5em;
+            max-height: 3em;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: var(--spacing-xl) 0;
+            color: var(--color-text-light);
+            font-size: 0.8rem;
+            margin-top: var(--spacing-xl);
+        }
+
+        /* Pagination */
+        .pagination {
+            margin-top: var(--spacing-lg);
+            text-align: center;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--color-text-light);
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--color-accent);
+            border-radius: 50%;
+            margin: 0 auto var(--spacing-sm);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="container">
+            <h1>論文検索</h1>
+            <p class="subtitle">Curated search for Cell, Nature, and Science</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Search Panel -->
+        <section class="search-panel" id="searchPanel">
+            <div class="form-group">
+                <label for="keywordInput">Keyword</label>
+                <input type="text" id="keywordInput" placeholder="e.g. CRISPR, circadian rhythm" autocomplete="off">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <div class="date-selects">
+                        <select id="yearSelect">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                            <option value="2019">2019</option>
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                            <option value="2016">2016</option>
+                            <option value="2015">2015</option>
+                            <option value="2014">2014</option>
+                            <option value="2013">2013</option>
+                            <option value="2012">2012</option>
+                            <option value="2011">2011</option>
+                            <option value="2010">2010</option>
+                            <option value="2009">2009</option>
+                            <option value="2008">2008</option>
+                            <option value="2007">2007</option>
+                            <option value="2006">2006</option>
+                            <option value="2005">2005</option>
+                            <option value="2004">2004</option>
+                            <option value="2003">2003</option>
+                            <option value="2002">2002</option>
+                            <option value="2001">2001</option>
+                            <option value="2000">2000</option>
+                            <option value="1999">1999</option>
+                            <option value="1998">1998</option>
+                            <option value="1997">1997</option>
+                            <option value="1996">1996</option>
+                            <option value="1995">1995</option>
+                            <option value="1994">1994</option>
+                            <option value="1993">1993</option>
+                            <option value="1992">1992</option>
+                            <option value="1991">1991</option>
+                            <option value="1990">1990</option>
+                            <option value="1989">1989</option>
+                            <option value="1988">1988</option>
+                            <option value="1987">1987</option>
+                            <option value="1986">1986</option>
+                            <option value="1985">1985</option>
+                            <option value="1984">1984</option>
+                            <option value="1983">1983</option>
+                            <option value="1982">1982</option>
+                            <option value="1981">1981</option>
+                            <option value="1980">1980</option>
+                        </select>
+                        <select id="monthSelect">
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Journals</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Cell" checked> Cell
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Nature" checked> Nature
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Science" checked> Science
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 0 0 150px;">
+                    <label for="sortSelect">Sort By</label>
+                    <select id="sortSelect">
+                        <option value="relevance">Relevance</option>
+                        <option value="date">Newest</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="searchBtn" class="btn-primary" onclick="runSearch()">Search Papers</button>
+        </section>
+
+        <!-- Result Panel -->
+        <section class="result-panel" id="resultPanel">
+            <div id="resultsMeta" class="results-meta hidden"></div>
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Searching literature...</p>
+            </div>
+            <div id="paperList" class="paper-list"></div>
+
+            <div id="pagination" class="pagination hidden">
+                <button id="loadMoreBtn" class="btn-secondary" onclick="runSearch(true)">Load More</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container">
+            <p>Data source: PubMed (NCBI). This is a demo application.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Global Error Handler for Mobile Debugging
+        window.onerror = function (msg, url, line, col, error) {
+            alert("Error: " + msg + "\nLine: " + line);
+            return false;
+        };
+
+        // UI Helpers
+        const UI = {
+            // Options are now hardcoded in HTML for robustness
+
+            clearResults: () => {
+                document.getElementById('paperList').innerHTML = '';
+                document.getElementById('resultsMeta').classList.add('hidden');
+                document.getElementById('pagination').classList.add('hidden');
+            },
+
+            showLoading: (isLoading) => {
+                const el = document.getElementById('loading');
+                if (isLoading) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            },
+
+            showMeta: (message) => {
+                const el = document.getElementById('resultsMeta');
+                el.innerHTML = `<strong>${message}</strong>`;
+                el.classList.remove('hidden');
+            },
+
+            updatePagination: (visible, hasMore) => {
+                const el = document.getElementById('pagination');
+                const btn = document.getElementById('loadMoreBtn');
+
+                if (visible && hasMore) {
+                    el.classList.remove('hidden');
+                    btn.textContent = 'Load More';
+                    btn.disabled = false;
+                } else {
+                    el.classList.add('hidden');
+                }
+            },
+
+            setLoadMoreLoading: (isLoading) => {
+                const btn = document.getElementById('loadMoreBtn');
+                if (isLoading) {
+                    btn.textContent = 'Loading...';
+                    btn.disabled = true;
+                } else {
+                    btn.textContent = 'Load More';
+                    btn.disabled = false;
+                }
+            },
+
+            createPaperCard: (paper) => {
+                const card = document.createElement('div');
+                card.className = 'paper-card';
+
+                // Link logic
+                let link = `https://pubmed.ncbi.nlm.nih.gov/${paper.id}/`;
+                if (paper.doi) {
+                    link = `https://doi.org/${paper.doi}`;
+                }
+
+                // Authors
+                let authorText = 'Unknown Authors';
+                if (paper.authors && paper.authors.length > 0) {
+                    authorText = paper.authors[0];
+                    if (paper.authors.length > 1) {
+                        authorText += ' et al.';
+                    }
+                }
+
+                const abstract = paper.abstract || 'No abstract available.';
+                const citationCount = paper.citationCount !== null ? paper.citationCount : 0;
+
+                const sourceBadge = paper.source === 'CrossRef'
+                    ? `<span style="background:#eee; color:#555; padding:2px 6px; border-radius:4px; font-size:0.75rem;">Via CrossRef</span>`
+                    : '';
+
+                card.innerHTML = `
+                    <h3><a href="${link}" target="_blank" rel="noopener noreferrer">${paper.title}</a></h3>
+                    <div class="paper-meta">
+                        ${sourceBadge}
+                        <span class="journal-tag">${paper.journal}</span>
+                        <span>${paper.pubdate}</span>
+                        <span>${authorText}</span>
+                        <span class="citation-count" title="Cited by ${citationCount}">
+                           ★ ${citationCount} citations
+                        </span>
+                    </div>
+                    <div class="paper-abstract" title="${abstract}">
+                        ${abstract}
+                    </div>
+                `;
+
+                return card;
+            },
+
+            appendCard: (card) => {
+                document.getElementById('paperList').appendChild(card);
+            }
+        };
+
+        // PubMed API
+        class PubMedAPI {
+            constructor() {
+                this.baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+            }
+
+            async search(keyword, year, month, journals, sort, start = 0, max = 10) {
+                // 1. Build Query
+                const journalQuery = journals.map(j => `"${j}"[Journal]`).join(' OR ');
+                const dateQuery = `"${year}/${month}"[Date - Publication] : "3000"[Date - Publication]`;
+
+                // Tokenize and use [Text Word] to search in Title, Abstract, and Keywords
+                const tokens = keyword.split(/\s+/).filter(t => t.length > 0);
+                const keywordQuery = tokens.map(t => `"${t}"[Text Word]`).join(' AND ');
+
+                const fullQuery = `(${keywordQuery}) AND (${journalQuery}) AND (${dateQuery})`;
+
+                console.log('PubMed Query:', fullQuery);
+
+                // 2. E-Search (Get IDs)
+                let sortParam = '';
+                if (sort === 'date') {
+                    sortParam = '&sort=date';
+                }
+
+                const searchUrl = `${this.baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(fullQuery)}&retmode=json&retstart=${start}&retmax=${max}${sortParam}`;
+
+                try {
+                    const searchRes = await fetch(searchUrl);
+                    const searchData = await searchRes.json();
+
+                    if (!searchData.esearchresult || !searchData.esearchresult.idlist || searchData.esearchresult.idlist.length === 0) {
+                        return { count: 0, papers: [] };
+                    }
+
+                    const ids = searchData.esearchresult.idlist;
+                    const totalCount = parseInt(searchData.esearchresult.count, 10);
+
+                    // 3. E-Fetch (Get Details with Abstract - XML)
+                    const papers = await this.fetchDetails(ids);
+
+                    // 4. Get Citations (Async / Batch)
+                    await this.fetchCitations(papers);
+
+                    return { count: totalCount, papers: papers };
+
+                } catch (error) {
+                    console.error('PubMed API Error:', error);
+                    return { count: 0, papers: [] }; // Fail gracefully
+                }
+            }
+
+            async fetchDetails(ids) {
+                const idStr = ids.join(',');
+                const fetchUrl = `${this.baseUrl}/efetch.fcgi?db=pubmed&id=${idStr}&retmode=xml`;
+
+                const res = await fetch(fetchUrl);
+                const text = await res.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, 'text/xml');
+
+                const articles = xmlDoc.getElementsByTagName('PubmedArticle');
+                const papers = [];
+
+                for (let article of articles) {
+                    const medline = article.querySelector('MedlineCitation');
+                    const pmid = medline.querySelector('PMID').textContent;
+
+                    const articleData = medline.querySelector('Article');
+                    const title = articleData.querySelector('ArticleTitle').textContent;
+
+                    // Journal
+                    let journalTitle = articleData.querySelector('Journal > Title') ?
+                        articleData.querySelector('Journal > Title').textContent :
+                        articleData.querySelector('Journal > ISOAbbreviation').textContent;
+
+                    // Normalize Journal Name
+                    if (journalTitle.includes('Science') || journalTitle === 'Science (New York, N.Y.)') {
+                        journalTitle = 'Science';
+                    }
+
+                    // Date Parsing
+                    let pubDate = '';
+                    const articleDateNode = articleData.querySelector('ArticleDate');
+                    if (articleDateNode) {
+                        const y = articleDateNode.querySelector('Year') ? articleDateNode.querySelector('Year').textContent : '';
+                        const m = articleDateNode.querySelector('Month') ? articleDateNode.querySelector('Month').textContent : '';
+                        const d = articleDateNode.querySelector('Day') ? articleDateNode.querySelector('Day').textContent : '';
+                        if (y && m && d) pubDate = `${y}-${m}-${d}`;
+                        else if (y && m) pubDate = `${y}-${m}`;
+                        else if (y) pubDate = y;
+                    }
+
+                    if (!pubDate) {
+                        const pubDateNode = articleData.querySelector('Journal > JournalIssue > PubDate');
+                        if (pubDateNode) {
+                            const year = pubDateNode.querySelector('Year') ? pubDateNode.querySelector('Year').textContent : '';
+                            const month = pubDateNode.querySelector('Month') ? pubDateNode.querySelector('Month').textContent : '';
+                            const day = pubDateNode.querySelector('Day') ? pubDateNode.querySelector('Day').textContent : '';
+                            const medlineDate = pubDateNode.querySelector('MedlineDate') ? pubDateNode.querySelector('MedlineDate').textContent : '';
+
+                            if (year) {
+                                pubDate = year;
+                                if (month) pubDate += `-${month}`;
+                                if (day) pubDate += `-${day}`;
+                            } else if (medlineDate) {
+                                pubDate = medlineDate; // Use MedlineDate directly
+                            }
+                        }
+                    }
+
+                    // Authors
+                    const authorList = articleData.querySelector('AuthorList');
+                    let authors = [];
+                    if (authorList) {
+                        const authorNodes = authorList.querySelectorAll('Author');
+                        for (let a of authorNodes) {
+                            const lastName = a.querySelector('LastName') ? a.querySelector('LastName').textContent : '';
+                            const foreName = a.querySelector('ForeName') ? a.querySelector('ForeName').textContent : '';
+                            if (lastName) authors.push(`${lastName} ${foreName}`);
+                        }
+                    }
+
+                    // Abstract
+                    const abstractNode = articleData.querySelector('Abstract');
+                    let abstractText = '';
+                    if (abstractNode) {
+                        const abstractTexts = abstractNode.querySelectorAll('AbstractText');
+                        let texts = [];
+                        for (let t of abstractTexts) {
+                            const label = t.getAttribute('Label');
+                            const content = t.textContent;
+                            if (label) texts.push(`${label}: ${content}`);
+                            else texts.push(content);
+                        }
+                        abstractText = texts.join(' ');
+                    }
+
+                    // IDs (DOI)
+                    let doi = '';
+                    const elocation = articleData.querySelector('ELocationID[EIdType="doi"]');
+                    if (elocation) doi = elocation.textContent;
+
+                    papers.push({
+                        id: pmid,
+                        title: title,
+                        journal: journalTitle,
+                        pubdate: pubDate, // String YYYY-MM-DD
+                        year: pubDate.substring(0, 4), // For simplified sorting fallback
+                        authors: authors,
+                        abstract: abstractText,
+                        doi: doi ? doi.toLowerCase() : null,
+                        citationCount: null,
+                        source: 'PubMed'
+                    });
+                }
+
+                return papers; // No extra sorting map needed as we will dedup and sort later
+            }
+
+            async fetchCitations(papers) {
+                if (papers.length === 0) return;
+                const ids = papers.map(p => p.id).join(',');
+                const linkUrl = `${this.baseUrl}/elink.fcgi?dbfrom=pubmed&linkname=pubmed_pubmed_citedin&id=${ids}&retmode=json`;
+
+                try {
+                    const res = await fetch(linkUrl);
+                    const data = await res.json();
+
+                    if (data.linksets) {
+                        data.linksets.forEach(linkset => {
+                            const id = linkset.ids[0];
+                            let count = 0;
+                            if (linkset.linksetdbs && linkset.linksetdbs.length > 0) {
+                                count = linkset.linksetdbs[0].links.length;
+                            }
+                            const paper = papers.find(p => p.id == id);
+                            if (paper) paper.citationCount = count;
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Citation fetch failed', e);
+                }
+            }
+        }
+
+        // CrossRef API
+        class CrossRefAPI {
+            constructor() {
+                this.baseUrl = 'https://api.crossref.org/works';
+                this.issns = {
+                    'Cell': '0092-8674',
+                    'Nature': '0028-0836',
+                    'Science': '0036-8075'
+                };
+            }
+
+            async search(keyword, year, month, journals, sort, start = 0, max = 10) {
+                // CrossRef doesn't support complex boolean queries easily, but basic keyword works.
+                // Filter by ISSN.
+
+                // Construct Date Filter (from-pub-date)
+                // format: YYYY-MM-DD, or just YYYY
+                const fromDate = `${year}-${month.padStart(2, '0')}-01`;
+
+                const selectedIssns = journals.map(j => this.issns[j]).filter(Boolean).join(',');
+                if (!selectedIssns) return { count: 0, papers: [] };
+
+                // Build Params
+                const params = new URLSearchParams({
+                    'query.bibliographic': keyword,
+                    'filter': `issn:${selectedIssns},from-pub-date:${fromDate}`,
+                    'rows': max,
+                    'offset': start,
+                    'sort': sort === 'date' ? 'published' : 'relevance',
+                    'order': 'desc',
+                    'mailto': 'antigravity@google.com' // Good practice
+                });
+
+                const url = `${this.baseUrl}?${params.toString()}`;
+
+                try {
+                    console.log('CrossRef Query:', url);
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (!data.message || !data.message.items) {
+                        return { count: 0, papers: [] };
+                    }
+
+                    const items = data.message.items;
+                    const papers = items.map(item => this.transform(item));
+                    const totalCount = data.message['total-results'];
+
+                    return { count: totalCount, papers: papers };
+
+                } catch (error) {
+                    console.warn('CrossRef API Error:', error);
+                    return { count: 0, papers: [] };
+                }
+            }
+
+            transform(item) {
+                // Normalize data to match PubMed structure
+                const title = item.title ? item.title[0] : 'Untitled';
+
+                // Journal Name
+                let journal = item['container-title'] ? item['container-title'][0] : 'Unknown Journal';
+                if (journal.includes('Science') && journal !== 'Science') journal = 'Science'; // Normalize
+
+                // Date
+                // published-print or published-online. Prefer online for speed.
+                const pubDateObj = item['published-online'] || item['published-print'] || item['published'];
+                let pubDate = '';
+                let year = '';
+                if (pubDateObj && pubDateObj['date-parts']) {
+                    const parts = pubDateObj['date-parts'][0]; // [YYYY, MM, DD]
+                    if (parts[0]) year = parts[0].toString();
+                    pubDate = parts.join('-');
+                }
+
+                // Authors
+                const authors = item.author ? item.author.map(a => `${a.family} ${a.given || ''}`.trim()) : [];
+
+                // DOI
+                const doi = item.DOI ? item.DOI.toLowerCase() : null;
+
+                return {
+                    id: doi, // Use DOI as ID for CrossRef
+                    title: title,
+                    journal: journal,
+                    pubdate: pubDate,
+                    year: year,
+                    authors: authors,
+                    abstract: null, // CrossRef rarely has full abstracts open
+                    doi: doi,
+                    citationCount: item['is-referenced-by-count'] || 0,
+                    source: 'CrossRef'
+                };
+            }
+        }
+
+        // App Logic
+        // document.addEventListener('DOMContentLoaded', () => {
+        // UI Init already done immediately above
+
+        const pubmed = new PubMedAPI();
+        const crossref = new CrossRefAPI();
+
+        // State
+        let currentState = {
+            keyword: '',
+            year: '',
+            month: '',
+            journals: [],
+            sort: 'relevance',
+            results: [],
+            totalCount: 0,
+            nextStart: 0,
+            BATCH_SIZE: 20 // Fetch more to deduplicate
+        };
+
+        const runSearch = async (isLoadMore = false) => {
+            try { alert('Debug: RunSearch called'); } catch (e) { }
+            if (!isLoadMore) {
+                // New Search
+                currentState.keyword = document.getElementById('keywordInput').value.trim();
+                currentState.year = document.getElementById('yearSelect').value;
+                currentState.month = document.getElementById('monthSelect').value;
+                currentState.sort = document.getElementById('sortSelect').value;
+
+                const journalCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+                currentState.journals = Array.from(journalCheckboxes).map(cb => cb.value);
+
+                currentState.nextStart = 0;
+                currentState.results = [];
+
+                if (!currentState.keyword) {
+                    alert('Please enter a keyword');
+                    return;
+                }
+                if (currentState.journals.length === 0) {
+                    alert('Please select at least one journal');
+                    return;
+                }
+
+                UI.clearResults();
+                UI.showLoading(true);
+            } else {
+                UI.setLoadMoreLoading(true);
+            }
+
+            try {
+                // Parallel Fetch
+                const [pubmedData, crossrefData] = await Promise.all([
+                    pubmed.search(
+                        currentState.keyword,
+                        currentState.year,
+                        currentState.month,
+                        currentState.journals,
+                        currentState.sort,
+                        currentState.nextStart, // offset
+                        currentState.BATCH_SIZE
+                    ),
+                    crossref.search(
+                        currentState.keyword,
+                        currentState.year,
+                        currentState.month,
+                        currentState.journals,
+                        currentState.sort,
+                        currentState.nextStart, // offset
+                        currentState.BATCH_SIZE
+                    )
+                ]);
+
+                UI.showLoading(false);
+                if (isLoadMore) UI.setLoadMoreLoading(false);
+
+                // Deduplication & Merging
+                // We merge the NEW batch only. 
+                // Warning: Pagination is tricky with mixed sources. 
+                // This simple implementation fetches independently. duplicates might appear across pages if not careful.
+                // But for client-side simple aggregation, we allow simple local deduplication.
+
+                const newPapers = [];
+                const seenDois = new Set(currentState.results.map(p => p.doi).filter(Boolean));
+
+                // 1. Process PubMed (Priority)
+                pubmedData.papers.forEach(p => {
+                    if (!p.doi || !seenDois.has(p.doi)) {
+                        newPapers.push(p);
+                        if (p.doi) seenDois.add(p.doi);
+                    }
+                });
+
+                // 2. Process CrossRef
+                crossrefData.papers.forEach(p => {
+                    if (!p.doi || !seenDois.has(p.doi)) {
+                        p.source = 'CrossRef'; // Tag explicitly
+                        newPapers.push(p);
+                        if (p.doi) seenDois.add(p.doi);
+                    }
+                });
+
+                // Sort the merged batch (if relevance it's hard to mix, but if date we can)
+                // For now, we respect the incoming order mostly, or re-sort by date if sort=date
+                if (currentState.sort === 'date') {
+                    newPapers.sort((a, b) => (b.pubdate || '').localeCompare(a.pubdate || ''));
+                }
+
+                if (!isLoadMore && newPapers.length === 0) {
+                    UI.showMeta('No papers found matching your criteria.');
+                    UI.updatePagination(false, false);
+                } else {
+                    // Estimate Total: max of both? sum? PubMed count is usually the baseline. 
+                    // CrossRef count might be huge due to different matching.
+                    // Let's maximize user trust: show "Found X (PubMed) + Y (CrossRef)" or just sum.
+                    const totalText = `Found approx. ${pubmedData.count + crossrefData.count} papers (merged).`;
+                    if (!isLoadMore) UI.showMeta(totalText);
+
+                    // State update
+                    currentState.results = [...currentState.results, ...newPapers];
+                    currentState.totalCount = Math.max(pubmedData.count, crossrefData.count); // Rough approximation for pagination
+                    currentState.nextStart += currentState.BATCH_SIZE;
+
+                    newPapers.forEach(paper => {
+                        const card = UI.createPaperCard(paper);
+                        UI.appendCard(card);
+                    });
+
+                    // Pagination enablement
+                    // If we got results, assume there might be more. Simpler than tracking exact offsets.
+                    const hasMore = newPapers.length > 0;
+                    UI.updatePagination(true, hasMore);
+                }
+
+            } catch (error) {
+                UI.showLoading(false);
+                if (isLoadMore) UI.setLoadMoreLoading(false);
+                if (!isLoadMore) UI.showMeta('Error occurred while fetching data.');
+                console.error(error);
+            }
+        };
+
+        // 2. Event Listeners
+        // document.getElementById('searchBtn').addEventListener('click', () => runSearch(false));
+        // document.getElementById('loadMoreBtn').addEventListener('click', () => runSearch(true));
+        // });
+
+        // 2. Event Listeners - Handled by HTML onclick
+    </script>
+</body>
+
+</html>
